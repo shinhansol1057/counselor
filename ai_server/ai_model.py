@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn as nn
 import gluonnlp as nlp
 from torch.utils.data import Dataset, DataLoader
-
+from konlpy.tag import Okt
 
 
 # 데이터셋 처리 클래스 정의
@@ -20,6 +20,7 @@ class BERTDataset(Dataset):
 
     def __len__(self):
         return len(self.labels)
+
 
 # BERTClassifier 정의
 class BERTClassifier(nn.Module):
@@ -44,6 +45,7 @@ class BERTClassifier(nn.Module):
             pooler = self.dropout(pooler)
         return self.classifier(pooler)
 
+
 # 모델 불러오기
 def load_model(model_path, bertmodel, device):
     model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
@@ -51,31 +53,37 @@ def load_model(model_path, bertmodel, device):
     print(checkpoint.keys())  # 저장된 키를 출력
     return model
 
-def get_important_words(text, model, tokenizer, device, max_len=64):
-    model.eval()
-    inputs = tokenizer(text, return_tensors='pt', max_length=max_len, padding='max_length', truncation=True)
-    token_ids = inputs['input_ids'].to(device)
-    segment_ids = inputs['token_type_ids'].to(device)
-    attention_mask = inputs['attention_mask'].to(device)
 
-    with torch.no_grad():
-        # BERT 모델에서 각 attention layer의 가중치를 추출
-        outputs = model.bert(input_ids=token_ids, token_type_ids=segment_ids, attention_mask=attention_mask, output_attentions=True)
-        attentions = outputs[-1]  # attention weights (list of tensors)
+# 키워드 추출
+def get_keywords(text):
+    """
+    입력된 텍스트에서 명사를 추출하여 반환.
+    Args:
+    - text (str): 입력 문장
 
-        # 마지막 layer의 attention weights을 사용
-        last_layer_attention = attentions[-1].squeeze(0)  # shape: [num_heads, seq_len, seq_len]
-        avg_attention = last_layer_attention.mean(dim=0)  # 평균화하여 중요한 토큰 확인
-
-        # 가장 중요한 단어 추출
-        important_token_indices = avg_attention.sum(dim=0).topk(5).indices  # 상위 5개 단어
-        important_tokens = tokenizer.convert_ids_to_tokens(token_ids[0][important_token_indices])
-
-    return important_tokens
+    Returns:
+    - keywords (list): 추출된 명사 키워드 리스트
+    """
+    okt = Okt()
+    keywords = okt.nouns(text)  # 명사 추출
+    return keywords
 
 
-# 예측 함수 정의
 def predict(texts, model, tokenizer, device, max_len=64, batch_size=64):
+    """
+    문장을 입력받아 감정 예측 및 명사 키워드 추출.
+
+    Args:
+    - texts (list of tuples): [(id, text), ...]
+    - model: BERT 감정 분석 모델
+    - tokenizer: 토크나이저
+    - device: GPU/CPU 장치
+    - max_len (int): 최대 토큰 길이
+    - batch_size (int): 배치 크기
+
+    Returns:
+    - results (list): [{"id": str, "emotion_text": str, "important_words": list}, ...]
+    """
     model.eval()
     results = []
     ids, texts_only = zip(*texts)  # id와 text를 분리
@@ -93,16 +101,24 @@ def predict(texts, model, tokenizer, device, max_len=64, batch_size=64):
             segment_ids = segment_ids.long().to(device)
             label = label.long().to(device)
 
+            # 모델 예측
             out = model(token_ids, valid_length, segment_ids)
             batch_start_idx = batch_id * batch_size
-            for i, (logits, text_id) in enumerate(zip(out, ids[batch_start_idx:batch_start_idx + len(out)])):
+            for i, (logits, text_id, text) in enumerate(
+                zip(out, ids[batch_start_idx:batch_start_idx + len(out)], texts_only[batch_start_idx:batch_start_idx + len(out)])
+            ):
                 logits = logits.detach().cpu().numpy()
                 predicted_emotion = np.argmax(logits)  # 예측된 감정 레이블
                 predicted_emotion_str = emotion_dict.get(predicted_emotion, "알 수 없는 감정")
 
+                # 키워드 추출 (명사 추출)
+                keywords = get_keywords(text)
+
+                # 결과 저장
                 results.append({
-                    "id": str(text_id),  # id 추가
-                    "emotion_text": predicted_emotion_str
+                    "id": str(text_id),
+                    "emotion_text": predicted_emotion_str,
+                    "keywords": keywords
                 })
 
     return results

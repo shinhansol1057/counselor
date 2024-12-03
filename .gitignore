@@ -3,7 +3,8 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-
+/ai_server/myenv/
+/ai_server/.cache/
 ### Build Artifacts ###
 !**/src/main/**/build/
 !**/src/test/**/build/

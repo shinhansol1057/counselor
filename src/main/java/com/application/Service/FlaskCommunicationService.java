@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class FlaskCommunicationService {
 
-    private final String FLASK_SERVER_URL = "http://localhost:5000/analyze"; // Python 서버 URL
+    private final String FLASK_SERVER_URL = "http://localhost:6000/analyze"; // Python 서버 URL
 
     // Flask 서버로 녹음 파일 전송 및 분석 결과 수신
     public List<Map<String, Object>> analyzeRecording(File file) throws IOException {

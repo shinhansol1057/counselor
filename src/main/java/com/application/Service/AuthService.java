@@ -78,7 +78,7 @@ public class AuthService {
         }
 
         // JWT 토큰 생성
-        int exprTime = 3600; // 1시간 유효
+        int exprTime = 60 * 60 * 24; // 1시간 유효
         String token = tokenProvider.createJwt(email, exprTime);
         if (token == null) {
             return ResponseDto.setFailed("토큰 생성에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);

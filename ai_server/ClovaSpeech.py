@@ -61,10 +61,10 @@ class ClovaSpeechClient:
                    wordAlignment=True, fullText=True, diarization=None, sed=None):
 
         diarization = {
-            'enable': True,
-            'speakerCountMin': 2,
-            'speakerCountMax': 2
-        }
+        'enable': True,
+        'speakerCountMin': 2,
+        'speakerCountMax': 2
+    }
 
         request_body = {
             'language': 'ko-KR',

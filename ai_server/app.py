@@ -11,8 +11,8 @@ import logging
 app = Flask(__name__)
 
 # Clova Speech와 모델 초기화
-invoke_url = "https://clovaspeech-gw.ncloud.com/external/v1/9546/c34c1539ae895f986a54639cb7dbd8782e877cd6a6e2b9cb1d871f06565ebefc"  # Clova API URL
-secret = "6f9c765a245446deb219b4d036a9d25f"  # Clova API Secret Key
+invoke_url = "https://clovaspeech-gw.ncloud.com/external/v1/9708/a77de8a6daa1129516b14c8ca1e233a51a8414b202eac7c8acfbb9b485046ad4"  # Clova API URL
+secret = "664664c82f1c4b2ca5915d9b155b7ab0"  # Clova API Secret Key
 clova_client = ClovaSpeechClient(invoke_url, secret)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,7 +54,8 @@ def analyze():
             "id": str(sentence_id),
             "speaker_label": speaker_label,
             "text": text,
-            "emotion": None
+            "emotion": None,
+            "keywords" : None
         })
         sentence_id += 1
 
@@ -64,9 +65,10 @@ def analyze():
             for result in results:
                 if result['id'] == prediction['id']:
                     result['emotion'] = prediction['emotion_text']
+                    result['keywords'] = prediction['keywords']
 
     return jsonify(results), 200
 
 if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)  # INFO 레벨로 설정
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=6000)
