@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   BarChart3,
   Users,
@@ -7,8 +7,38 @@ import {
   Clock,
   ChevronRight,
   ArrowUpRight,
-  ArrowDownRight
-} from "lucide-react"
+  ArrowDownRight,
+  FileAudio
+} from 'lucide-react'
+
+const recentAnalysis = [
+  {
+    id: 1,
+    clientName: '김철수',
+    fileName: 'counseling_session_01.mp3',
+    date: '2024.01.15',
+    duration: '45:22',
+    emotionStatus: '긍정'
+  },
+  {
+    id: 2,
+    clientName: '이영희',
+    fileName: 'counseling_session_02.mp3',
+    date: '2024.01.14',
+    duration: '32:15',
+    emotionStatus: '보통'
+  },
+  {
+    id: 3,
+    clientName: '박지민',
+    fileName: 'counseling_session_03.mp3',
+    date: '2024.01.13',
+    duration: '28:47',
+    emotionStatus: '부정'
+  }
+]
+
+// ... imports와 recentAnalysis 데이터는 동일
 
 function Dashboard() {
   return (
@@ -37,7 +67,7 @@ function Dashboard() {
             </div>
             <ArrowDownRight className="w-5 h-5 text-red-500" />
           </div>
-          <p className="text-sm text-gray-500 mb-1">이번 달 상담</p>
+          <p className="text-sm text-gray-500 mb-1">총 상담 횟수</p>
           <p className="text-2xl font-bold">89회</p>
         </Card>
 
@@ -64,59 +94,48 @@ function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold">최근 상담 내역</h2>
-            <Button variant="ghost" size="sm" className="text-gray-500">
-              전체보기 <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+      <Card className="p-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold">음성 파일 분석 결과</h2>
+          <p className="text-gray-500 mt-1">최근 분석된 상담 음성 파일의 감정 분석 결과입니다.</p>
+        </div>
+        <div className="space-y-5">
+          {recentAnalysis.map((analysis) => (
+            <div
+              key={analysis.id}
+              className="flex items-center justify-between p-5 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+            >
+              <div className="flex items-center gap-5">
+                <div className="p-3 bg-blue-50 rounded-xl">
+                  <FileAudio className="w-6 h-6 text-blue-600" />
+                </div>
                 <div>
-                  <p className="font-medium mb-1">김OO 내담자</p>
-                  <p className="text-sm text-gray-500">2024.01.{15 + i} · 60분</p>
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <h3 className="text-lg font-medium">{analysis.clientName} 내담자</h3>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        analysis.emotionStatus === '긍정'
+                          ? 'bg-green-100 text-green-600'
+                          : analysis.emotionStatus === '보통'
+                          ? 'bg-yellow-100 text-yellow-600'
+                          : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {analysis.emotionStatus}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {analysis.fileName} · {analysis.date} · {analysis.duration}
+                  </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  상세보기
-                </Button>
               </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold">감정 분석 통계</h2>
-            <Button variant="ghost" size="sm" className="text-gray-500">
-              자세히 <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {["긍정", "보통", "부정"].map((emotion, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <span className="text-sm text-gray-500 w-16">{emotion}</span>
-                <div className="flex-1 bg-gray-100 rounded-full h-2">
-                  <div
-                    className={`h-full rounded-full ${
-                      i === 0
-                        ? "bg-green-500 w-[60%]"
-                        : i === 1
-                        ? "bg-yellow-500 w-[30%]"
-                        : "bg-red-500 w-[10%]"
-                    }`}
-                  />
-                </div>
-                <span className="text-sm text-gray-500 w-12">
-                  {i === 0 ? "60%" : i === 1 ? "30%" : "10%"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+              <Button variant="outline" size="sm">
+                상세보기
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   )
 }
