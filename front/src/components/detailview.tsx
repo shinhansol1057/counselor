@@ -88,13 +88,9 @@ export function DetailedView({ analysis }: Props) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            {/* @ts-ignore */}
             <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
-            {/* @ts-ignore */}
             <YAxis domain={[0, 6]} ticks={[0, 1, 2, 3, 4, 5, 6]} />
-            {/* @ts-ignore */}
             <Tooltip />
-            {/* @ts-ignore */}
             <Line type="monotone" dataKey="value" stroke="#8884d8" />
           </LineChart>
         </ResponsiveContainer>

@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Users, Calendar, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { BarChart3, Users, Calendar, Clock, ArrowUpRight } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 
