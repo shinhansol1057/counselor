@@ -155,6 +155,10 @@ function Dashboard() {
   const [expandedAnalysis, setExpandedAnalysis] = useState<number | null>(null)
 
   const handleClientChange = (value: string) => {
+    if (parseInt(value) === 0) {
+      navigate('/dashboard')
+      return
+    }
     navigate(`/dashboard?clientId=${value}`)
   }
 
