@@ -15,7 +15,6 @@ type Props = {
 }
 
 export function DetailedView({ analysis }: Props) {
-  console.log(analysis.length)
   const emotions = analysis.map((data) => {
     switch (data.emotion) {
       case '행복':
