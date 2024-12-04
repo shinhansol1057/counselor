@@ -3,9 +3,11 @@ package com.application.Service;
 import com.application.Dto.ClientResponseDto;
 import com.application.Dto.ResponseDto;
 import com.application.Entity.Client;
+import com.application.Entity.CounselingTopic;
 import com.application.Entity.Counselor;
 import com.application.Entity.CounselorClient;
 import com.application.Repository.ClientRepository;
+import com.application.Repository.CounselingTopicRepository;
 import com.application.Repository.CounselorClientRepository;
 import com.application.Repository.CounselorRepository;
 import org.hibernate.Hibernate;
@@ -28,13 +30,15 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final CounselorRepository counselorRepository;
     private final CounselorClientRepository counselorClientRepository;
+    private final CounselingTopicRepository counselingTopicRepository;
 
     @Autowired
     public ClientService(ClientRepository clientRepository,
-                         CounselorRepository counselorRepository, CounselorClientRepository counselorClientRepository) {
+                         CounselorRepository counselorRepository, CounselorClientRepository counselorClientRepository, CounselingTopicRepository counselingTopicRepository) {
         this.clientRepository = clientRepository;
         this.counselorRepository = counselorRepository;
         this.counselorClientRepository = counselorClientRepository;
+        this.counselingTopicRepository = counselingTopicRepository;
     }
 
 
@@ -147,4 +151,10 @@ public class ClientService {
     }
 
 
+    public ResponseDto<List<String>> getCounselingTopics() {
+        List<String> topics = counselingTopicRepository.findAll().stream()
+                .map(CounselingTopic::getTopicName)
+                .collect(Collectors.toList());
+        return ResponseDto.setSuccessData("상담 주제 목록 조회 성공", topics, HttpStatus.OK);
+    }
 }

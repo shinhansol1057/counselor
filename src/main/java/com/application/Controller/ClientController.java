@@ -1,6 +1,7 @@
 package com.application.Controller;
 
 import com.application.Dto.ClientResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.application.Dto.ClientRequestDto;
@@ -20,17 +21,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/clients")
+@RequiredArgsConstructor
 public class ClientController {
 
     private final ClientService clientService;
     private final EmotionAnalysisService emotionAnalysisService;
     private final SessionService sessionService;
 
-    @Autowired
-    public ClientController(ClientService clientService, EmotionAnalysisService emotionAnalysisService, SessionService sessionService) {
-        this.clientService = clientService;
-        this.emotionAnalysisService = emotionAnalysisService;
-        this.sessionService = sessionService;
+    @GetMapping("/topics")
+    public ResponseDto<List<String>> getCounselingTopics() {
+        return clientService.getCounselingTopics();
     }
 
     // 로그인된 상담사에게 배정된 내담자 목록 조회
@@ -66,14 +66,15 @@ public class ClientController {
     @PostMapping
     public ResponseDto<Client> addClient(@RequestBody ClientRequestDto clientRequestDto) {
         System.out.println("\n\nReceived topic: " + clientRequestDto.getTopic()+"\n\n"); // 디버깅용
-
+        System.out.println(clientRequestDto.getBirth());
         Client client = new Client();
         client.setRegistrationStatus(clientRequestDto.getRegistrationStatus());
         client.setName(clientRequestDto.getName());
         client.setContactNumber(clientRequestDto.getContactNumber());
         client.setGender(clientRequestDto.getGender());
-        client.setAge(clientRequestDto.getAge());
-        client.setRegistrationDate(LocalDate.parse(clientRequestDto.getRegistrationDate()));
+        client.setBirthDate(clientRequestDto.getBirth());
+        client.setAge(client.calculateAge(clientRequestDto.getBirth()));
+        client.setRegistrationDate(LocalDate.now());
         client.setTopic(clientRequestDto.getTopic()); // topic 설정
 
         return clientService.addClient(client);

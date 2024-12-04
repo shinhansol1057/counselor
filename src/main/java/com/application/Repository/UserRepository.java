@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<Counselor, Long> {
 
     // 이메일로 Counselor 찾기
-    Optional<Counselor> findByEmail(String email);
+//    Optional<Counselor> findByEmail(String email);
 
     // 이메일이 존재하는지 확인 (중복 회원가입 방지 용도)
-    boolean existsByEmail(String email);
+
 }

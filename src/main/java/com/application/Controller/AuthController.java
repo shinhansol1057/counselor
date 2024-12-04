@@ -6,6 +6,7 @@ import com.application.Dto.SignUpDto;
 import com.application.Entity.Counselor;
 import com.application.Service.AuthService;
 import com.application.Repository.CounselorRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -19,15 +20,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private CounselorRepository counselorRepository;
+    private final AuthService authService;
+    private final CounselorRepository counselorRepository;
 
     @PostMapping("/signUp")
     public ResponseDto<?> signup(@RequestBody SignUpDto requestBody) {

@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Home, Bell, BarChart2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
+import {login} from "@/api/auth.ts";
 
 const formSchema = z.object({
   email: z.string().email("올바른 이메일을 입력해주세요"),
@@ -48,9 +49,10 @@ function Login() {
     return () => clearInterval(timer)
   }, [])
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
-    localStorage.setItem("token", "login")
+    const data = await login(values.email, values.password)
+    localStorage.setItem("token", data.data.data.token)
     window.location.reload()
   }
 

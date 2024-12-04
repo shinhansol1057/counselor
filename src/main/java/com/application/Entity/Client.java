@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,4 +76,19 @@ public class Client {
     protected void onUpdate() {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
+
+    public int calculateAge(LocalDate birthDate) {
+        if (birthDate == null) {
+            throw new IllegalArgumentException("Birth date cannot be null");
+        }
+        LocalDate today = LocalDate.now();
+        if (birthDate.isAfter(today)) {
+            throw new IllegalArgumentException("Birth date cannot be in the future");
+        }
+
+        return Period.between(birthDate, today).getYears();
+    }
+
 }
+
+
