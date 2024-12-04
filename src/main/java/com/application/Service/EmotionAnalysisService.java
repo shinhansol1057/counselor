@@ -9,6 +9,7 @@ import com.application.Repository.EmotionAnalysisReportRepository;
 import com.application.Repository.EmotionMapRepository;
 import com.application.Repository.SessionRepository;
 import com.application.Service.FlaskCommunicationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,10 +66,12 @@ public class EmotionAnalysisService {
             convertedFile = convertMultipartFileToFile(file);
 
             // Flask 서버로 분석 요청
-            List<Map<String, Object>> analysisResults = flaskCommunicationService.analyzeRecording(convertedFile);
+            //TODO: AI 서버 미구동으로 인해 주석 처리 -> 추후 주석 해제 필요
+//            List<Map<String, Object>> analysisResults = flaskCommunicationService.analyzeRecording(convertedFile);
+
 
             // 분석 결과를 데이터베이스에 저장
-            saveAnalysisResults(session.getId(), analysisResults);
+            saveAnalysisResults(session.getId(), generateSampleData());
 
             // 성공 메시지 반환
             return ResponseDto.setSuccessData("분석 완료", "분석 결과가 성공적으로 저장되었습니다.", HttpStatus.OK);
@@ -120,12 +122,22 @@ public class EmotionAnalysisService {
             String sentenceText = (String) result.get("text");
             String emotion = (String) result.get("emotion"); // 감정 (null 가능)
             String sentenceId = (String) result.get("id");   // "1"과 같은 String 형태
-
+            // 키워드 데이터를 JSON 문자열로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String keywords = null;
+            Object keywordsObject = result.get("keywords");
+            if (keywordsObject != null) {
+                try {
+                    // 키워드 배열을 JSON 문자열로 변환
+                    keywords = objectMapper.writeValueAsString(keywordsObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    keywords = "[]"; // 예외 처리로 빈 배열 문자열 반환
+                }
+            }
             // 문장 번호 설정 (String -> int 변환)
             int sentenceNumber = Integer.parseInt(sentenceId);
 
-            // 키워드 설정 (현재 AI 결과에는 없음 -> 빈 배열)
-            String keywords = "[]";
 
             // 보고서 엔티티 생성
             report.setSession(session);
@@ -162,5 +174,101 @@ public class EmotionAnalysisService {
      */
     public List<EmotionMap> getEmotionSummaryByClient(Long clientId) {
         return emotionMapRepository.findByClient_Id(clientId);
+    }
+
+    public static List<Map<String, Object>> generateSampleData() {
+        List<Map<String, Object>> data = new ArrayList<>();
+
+        // 데이터 1
+        Map<String, Object> item1 = new HashMap<>();
+        item1.put("id", "1");
+        item1.put("speaker_label", "1");
+        item1.put("text", "요즘에는 스트레스가 너무 많아서 잠을 제대로 못 자요. 일이 많고, 정신적으로도 지쳐서 하루 종일 피곤해요. 매일 밤마다 잠들기 전에 계속 생각이 나서 쉽사리 잠들지 못하고, 결국 아침에 일어나면 피곤하고 불안한 기분이 들어요.");
+        item1.put("emotion", "불안");
+        item1.put("keywords", Arrays.asList("스트레스", "잠", "피곤"));
+        data.add(item1);
+
+        // 데이터 2
+        Map<String, Object> item2 = new HashMap<>();
+        item2.put("id", "2");
+        item2.put("speaker_label", "0");
+        item2.put("text", "그렇다면 스트레스가 너무 많아서 잠을 못 자는 건 어떻게 해결할 수 있을까요? 매일 그렇게 힘들다면 좀 더 나은 방법을 찾아야 하지 않을까요?");
+        item2.put("emotion", null);
+        item2.put("keywords", null);
+        data.add(item2);
+
+        // 데이터 3
+        Map<String, Object> item3 = new HashMap<>();
+        item3.put("id", "3");
+        item3.put("speaker_label", "1");
+        item3.put("text", "정확히는 제 일 때문에 그런 것 같아요. 너무 많은 일을 동시에 처리하려다 보니 스트레스가 쌓이고, 그 스트레스 때문에 밤마다 잠을 제대로 자지 못하게 되는 거 같아요. 그로 인해 다음 날도 더 힘들어지고, 결국 악순환이 반복되네요.");
+        item3.put("emotion", "불안");
+        item3.put("keywords", Arrays.asList("일", "스트레스", "잠"));
+        data.add(item3);
+
+        // 데이터 4
+        Map<String, Object> item4 = new HashMap<>();
+        item4.put("id", "4");
+        item4.put("speaker_label", "0");
+        item4.put("text", "그렇다면 그 스트레스의 원인을 좀 더 구체적으로 파악해보는 건 어떨까요? 일에서 오는 스트레스가 너무 크다면, 그 일을 어떻게 효율적으로 처리할 수 있는 방법을 찾아보는 게 필요할 수도 있어요.");
+        item4.put("emotion", null);
+        item4.put("keywords", null);
+        data.add(item4);
+
+        // 데이터 5
+        Map<String, Object> item5 = new HashMap<>();
+        item5.put("id", "5");
+        item5.put("speaker_label", "1");
+        item5.put("text", "맞아요. 제 일을 좀 더 효율적으로 처리하려면 어떻게 해야 할지 고민이 돼요. 일을 나누어서 처리하거나, 미리 준비를 좀 더 철저히 해서 스트레스를 줄여야겠다고 생각은 했지만, 아직 실천은 못 해본 것 같아요.");
+        item5.put("emotion", "고민");
+        item5.put("keywords", Arrays.asList("효율성", "스트레스", "고민"));
+        data.add(item5);
+
+        // 데이터 6
+        Map<String, Object> item6 = new HashMap<>();
+        item6.put("id", "6");
+        item6.put("speaker_label", "0");
+        item6.put("text", "그렇다면 좀 더 구체적인 방법을 찾아보는 게 좋을 것 같아요. 예를 들어, 하루 일과를 좀 더 구체적으로 계획해서 시간 관리를 잘 해보거나, 스트레스를 덜 받기 위한 취미 생활을 시작해 보는 것도 방법일 수 있어요.");
+        item6.put("emotion", null);
+        item6.put("keywords", null);
+        data.add(item6);
+
+        // 데이터 7
+        Map<String, Object> item7 = new HashMap<>();
+        item7.put("id", "7");
+        item7.put("speaker_label", "1");
+        item7.put("text", "그런 방법도 좋을 것 같아요. 사실 요즘에는 취미도 없고, 집에 오면 너무 피곤해서 아무것도 하고 싶지 않아서 계속 집에만 있어요. 그럴 바에야 그냥 잠이나 자는 게 나을 것 같아서 항상 그렇게 되네요.");
+        item7.put("emotion", "우울");
+        item7.put("keywords", Arrays.asList("취미", "피곤", "우울"));
+        data.add(item7);
+
+        // 데이터 8
+        Map<String, Object> item8 = new HashMap<>();
+        item8.put("id", "8");
+        item8.put("speaker_label", "0");
+        item8.put("text", "그럴 땐 작은 변화라도 시도하는 게 좋을 것 같아요. 예를 들어, 매일 10분 정도 운동을 해보거나, 주말에 산책을 해보는 것도 기분 전환에 도움이 될 수 있어요.");
+        item8.put("emotion", null);
+        item8.put("keywords", null);
+        data.add(item8);
+
+        // 데이터 9
+        Map<String, Object> item9 = new HashMap<>();
+        item9.put("id", "9");
+        item9.put("speaker_label", "1");
+        item9.put("text", "운동은 정말 필요한 것 같아요. 요즘에는 시간이 없어서 운동을 못 하고 있는데, 그래도 조금씩 시간을 내서 운동을 해야겠다 싶어요. 일단 10분이라도 시작해보는 게 중요할 것 같아요.");
+        item9.put("emotion", "결심");
+        item9.put("keywords", Arrays.asList("운동", "결심", "시간"));
+        data.add(item9);
+
+        // 데이터 10
+        Map<String, Object> item10 = new HashMap<>();
+        item10.put("id", "10");
+        item10.put("speaker_label", "0");
+        item10.put("text", "맞아요. 10분이라도 운동을 시작하는 게 중요한 것 같아요. 시간을 내기 어려운 상황에서도 조금씩이라도 실천하면, 점차 몸과 마음에 좋은 영향을 미칠 거예요.");
+        item10.put("emotion", "긍정");
+        item10.put("keywords", Arrays.asList("운동", "실천", "긍정"));
+        data.add(item10);
+
+        return data;
     }
 }

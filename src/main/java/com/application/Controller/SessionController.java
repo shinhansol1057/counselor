@@ -46,10 +46,9 @@ public class SessionController {
     }
 
     // 녹음 파일 업로드 및 AI 분석 요청
-    @PostMapping("/{clientId}/{sessionNumber}/analyze-recording")
+    @PostMapping("/{clientId}/analyze-recording")
     public ResponseDto<String> analyzeSessionRecording(
             @PathVariable Long clientId,
-            @PathVariable Integer sessionNumber,
             @RequestParam("file") MultipartFile file) {
 
         // 디버깅 정보 로그 출력
@@ -57,7 +56,7 @@ public class SessionController {
         System.out.println("File size: " + file.getSize());
         System.out.println("File content type: " + file.getContentType()+"\n\n");
 
-        return sessionService.analyzeSessionRecording(clientId, sessionNumber, file);
+        return sessionService.analyzeSessionRecording(clientId, file);
     }
 
 

@@ -43,12 +43,6 @@ const clientList: Client[] = [
   { id: 3, name: '박OO', status: 'active' }
 ]
 
-홍진호 - 상담1 -analysisData1
-            - analysisData2
-      - 상담2-analysisData1
-            - analysisData2
-      상담3-analysisData1
-          - analysisData2
 const recentAnalysis: Analysis[] = [
   {
     id: 1,

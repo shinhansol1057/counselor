@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.Optional;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class SessionService {
@@ -37,41 +38,30 @@ public class SessionService {
      * 세션 및 클라이언트 검증 후 감정 분석 요청
      *
      * @param clientId  클라이언트 ID
-     * @param sessionNumber 세션 ID
      * @param file      녹음 파일
      * @return 감정 분석 결과
      */
-    public ResponseDto<String> analyzeSessionRecording(Long clientId, Integer sessionNumber, MultipartFile file) {
+    public ResponseDto<String> analyzeSessionRecording(Long clientId, MultipartFile file) {
         try {
-            // 1. 세션 존재 여부 검증
-            Optional<Session> existingSession = sessionRepository.findByClientIdAndSessionNumber(clientId, sessionNumber);
             Session session;
 
-            if (existingSession.isPresent()) {
-                session = existingSession.get();
+            // 새 세션 생성
+            session = new Session();
 
-                if (!session.getClient().getId().equals(clientId)) {
-                    return ResponseDto.setFailed("세션이 해당 내담자와 연결되어 있지 않습니다.", HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                // 새 세션 생성
-                session = new Session();
-                session.setSessionNumber(sessionNumber);
+            // Client 객체 설정
+            Client client = clientRepository.findById(clientId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 내담자가 존재하지 않습니다."));
+            session.setClient(client);
+            session.setSessionNumber(new Random().nextInt(1000000)); // 세션 번호 랜덤 생성
 
-                // Client 객체 설정
-                Client client = clientRepository.findById(clientId)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 내담자가 존재하지 않습니다."));
-                session.setClient(client);
+            // Counselor 객체 설정
+            Counselor loggedInCounselor = clientService.getLoggedInCounselor(); // ClientService의 메서드 사용
+            session.setCounselor(loggedInCounselor);
 
-                // Counselor 객체 설정
-                Counselor loggedInCounselor = clientService.getLoggedInCounselor(); // ClientService의 메서드 사용
-                session.setCounselor(loggedInCounselor);
+            session.setSessionDate(new Timestamp(System.currentTimeMillis()));
 
-                session.setSessionDate(new Timestamp(System.currentTimeMillis()));
-
-                // 데이터베이스에 세션 저장
-                session = sessionRepository.save(session);
-            }
+            // 데이터베이스에 세션 저장
+            session = sessionRepository.save(session);
 
             // 2. 감정 분석 요청
             return emotionAnalysisService.analyzeRecording(session.getClient().getId(), session.getSessionNumber(), file);
