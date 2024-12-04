@@ -133,9 +133,19 @@ const recentAnalysis: Analysis[] = [
   }
 ]
 
+const emotionJson = {
+  행복: 4,
+  슬픔: 1,
+  분노: 2,
+  평온: 5,
+  걱정: 3,
+  즐거움: 6,
+  신뢰: 19
+}
+
 const emotionData = {
-  labels: ['행복', '슬픔', '분노', '평온', '걱정', '즐거움', '신뢰'],
-  values: [4, 1, 2, 5, 3, 6, 9]
+  labels: Object.keys(emotionJson),
+  values: Object.values(emotionJson)
 }
 
 function Dashboard() {

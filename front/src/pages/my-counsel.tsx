@@ -80,7 +80,6 @@ const dummyClients: Client[] = [
 function MyCounsel() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-4 md:p-6">
