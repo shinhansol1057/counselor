@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -7,74 +7,32 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "@/components/ui/table"
-import { useState} from "react"
-import { Search, Plus, Pencil } from "lucide-react"
-import PostClientModal from "@/components/client/PostClientModal.tsx";
-import UpdateClientModal from "@/components/client/UpdateClientModal.tsx";
+} from '@/components/ui/table'
+import { useState } from 'react'
+import { Search, Plus, Pencil } from 'lucide-react'
+import PostClientModal from '@/components/client/PostClientModal'
+import UpdateClientModal from '@/components/client/UpdateClientModal'
 
 export interface Client {
   id: number
-  date: string
   name: string
-  counselType: string
-  counselor: string
-  status: string
-  counselDate: string
-  nextDate: string
+  age: number
   gender: string
-  birthDate: Date
-  count: number
+  contactNumber: string
+  topic: string
+  birthDate: string
+  registrationDate: string
+  registrationStatus: string
+  counselorClients: any[]
+  emotionMap: any
+  createdAt: string
+  updatedAt: string
 }
-
-const dummyData: Client[] = [
-  {
-    id: 1,
-    date: "2024-01-15",
-    name: "김철수",
-    counselType: "진로상담",
-    counselor: "이상담",
-    status: "진행",
-    counselDate: "2024-01-20",
-    nextDate: "2024-02-20",
-    gender: "male",
-    birthDate: new Date("1990-01-15"),
-    count: 1
-  },
-  {
-    id: 2,
-    date: "2024-01-16",
-    name: "이영희",
-    counselType: "가족상담",
-    counselor: "김상담",
-    status: "신규",
-    counselDate: "2024-01-25",
-    nextDate: "2024-02-25",
-    gender: "female",
-    birthDate: new Date("1995-03-20"),
-    count: 1
-  },
-  {
-    id: 3,
-    date: "2024-01-10",
-    name: "박지민",
-    counselType: "학업상담",
-    counselor: "이상담",
-    status: "종결",
-    counselDate: "2024-01-18",
-    nextDate: "2024-02-18",
-    gender: "female",
-    birthDate: new Date("1988-12-05"),
-    count: 3
-  }
-]
 
 function MyCounsel() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
-
-
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-4 md:p-6">
@@ -116,46 +74,47 @@ function MyCounsel() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-nowrap">상담일</TableHead>
-                  <TableHead className="whitespace-nowrap">이름</TableHead>
-                  <TableHead className="whitespace-nowrap">상담주제</TableHead>
-                  <TableHead className="whitespace-nowrap">면담자</TableHead>
-                  <TableHead className="whitespace-nowrap">상담상태</TableHead>
-                  <TableHead className="whitespace-nowrap">상담날짜</TableHead>
-                  <TableHead className="whitespace-nowrap">다음상담</TableHead>
-                  <TableHead className="whitespace-nowrap">내담자 회차</TableHead>
+                  <TableHead className="whitespace-nowrap">ID</TableHead>
+                  <TableHead className="whitespace-nowrap">이름(나이)</TableHead>
+                  <TableHead className="whitespace-nowrap">성별</TableHead>
+                  <TableHead className="whitespace-nowrap">연락처</TableHead>
+                  <TableHead className="whitespace-nowrap">생년월일</TableHead>
+                  <TableHead className="whitespace-nowrap">등록일</TableHead>
                   <TableHead className="whitespace-nowrap"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dummyData.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="whitespace-nowrap">{client.date}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.name}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.counselType}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.counselor}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.status}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.counselDate}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.nextDate}</TableCell>
-                    <TableCell className="whitespace-nowrap">{client.count}회차</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedClient(client)
-                          setShowEditDialog(true)
-                        }}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {/* API 데이터를 매핑할 때 사용할 예시 */}
+                {/* {clients.map((client) => ( */}
+                <TableRow>
+                  <TableCell className="whitespace-nowrap">5</TableCell>
+                  <TableCell className="whitespace-nowrap">신한솔(8)</TableCell>
+                  <TableCell className="whitespace-nowrap">남성</TableCell>
+                  <TableCell className="whitespace-nowrap">01028041057</TableCell>
+                  <TableCell className="whitespace-nowrap">2016-02-04</TableCell>
+                  <TableCell className="whitespace-nowrap">2024-12-04</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedClient(null)
+                        setShowEditDialog(true)
+                      }}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+                {/* ))} */}
               </TableBody>
             </Table>
-            <PostClientModal showAddDialog={showAddDialog} setShowAddDialog={setShowAddDialog}/>
-            <UpdateClientModal showEditDialog={showEditDialog} setShowEditDialog={setShowEditDialog} clientId={1}/>
+            <PostClientModal showAddDialog={showAddDialog} setShowAddDialog={setShowAddDialog} />
+            <UpdateClientModal
+              showEditDialog={showEditDialog}
+              setShowEditDialog={setShowEditDialog}
+              clientId={1}
+            />
           </div>
         </div>
       </div>
