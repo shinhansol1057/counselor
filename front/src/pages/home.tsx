@@ -31,21 +31,15 @@ function Home() {
   const [selectedClient, setSelectedClient] = useState(clients[0].id)
 
   useEffect(() => {
-    if (isUploading && progress < 100) {
+    if (isUploading) {
       const timer = setTimeout(() => {
         setProgress((prev) => {
-          const increment: number = Math.floor(Math.random() * 15) + 5
-          return Math.min(prev + increment, 100)
+          const increment = Math.floor(Math.random() * 30) + 1
+          return prev >= 99 ? 0 : Math.min(prev + increment, 99)
         })
-      }, 500)
+      }, 1000)
 
       return () => clearTimeout(timer)
-    }
-
-    if (progress === 100) {
-      setTimeout(() => {
-        setIsComplete(true)
-      }, 500)
     }
   }, [isUploading, progress])
 
@@ -77,18 +71,23 @@ function Home() {
     }
   }
 
-  const handleFiles = (files: FileList): void => {
+  const handleFiles = async (files: FileList): Promise<void> => {
     if (!files.length) return
 
     const file = files[0]
     if (file.type === 'audio/mpeg' || file.type === 'audio/mp3') {
-      const blob: Blob = new Blob([file], { type: file.type })
-      console.log('File object:', file)
-      console.log('Blob:', blob)
-      console.log('File size:', file.size)
-      console.log('File type:', file.type)
-      console.log('Selected Client:', selectedClient)
       setIsUploading(true)
+      const audioFile: Blob = new Blob([file], { type: file.type })
+      try {
+        await submitAudioFile(selectedClient, audioFile)
+        setProgress(100)
+        setIsComplete(true)
+      } catch (error) {
+        console.error('Upload failed:', error)
+        alert('업로드에 실패했습니다.')
+      } finally {
+        setIsUploading(false)
+      }
     } else {
       alert('MP3 파일만 업로드 가능합니다.')
     }
@@ -103,6 +102,19 @@ function Home() {
     setIsUploading(false)
     setProgress(0)
     setIsComplete(false)
+  }
+
+  const submitAudioFile = async (clientId: string, audioFile: Blob) => {
+    // 내담자id랑 audioFile가져와서 post하면됨 토큰필요하면 const token = localstorage.get('token')
+    // await axios.post()
+    console.log(clientId, audioFile)
+
+    // 이건 await 끝날때까지그냥 계속 로딩함 실제 ai
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        resolve(true)
+      }, 13000)
+    })
   }
 
   return (
@@ -130,7 +142,7 @@ function Home() {
             </Select>
           </div>
 
-          {!isUploading && !isComplete && (
+          {!isComplete && !isUploading && (
             <div
               className={`bg-gray-50 rounded-lg p-12 text-center border-2 border-dashed
                 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
@@ -161,8 +173,11 @@ function Home() {
             <div className="bg-gray-50 rounded-lg p-12 text-center">
               <p className="text-sm text-gray-500 mb-4">내담자의 감정을 분석하고 있어요.</p>
               <Progress value={progress} className="mb-4" />
-              <p className="text-sm text-gray-500">
-                감정 분석까지 약 {Math.ceil((100 - progress) / 20)}분 남았어요.
+              <p className="text-sm text-gray-500 mb-2">잠시만 기다려주세요...</p>
+              <p className="text-sm text-gray-400">
+                페이지를 이동하셔도 분석은 계속 진행되며,
+                <br />
+                대시보드에서 결과를 확인하실 수 있습니다.
               </p>
             </div>
           )}
