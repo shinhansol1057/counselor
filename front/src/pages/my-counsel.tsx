@@ -8,10 +8,11 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { Search, Plus, Pencil } from 'lucide-react'
 import PostClientModal from '@/components/client/PostClientModal'
 import UpdateClientModal from '@/components/client/UpdateClientModal'
+import {getClients} from "@/api/client.ts";
 
 export interface Client {
   id: number
@@ -29,58 +30,18 @@ export interface Client {
   updatedAt: string
 }
 
-const dummyClients: Client[] = [
-  {
-    id: 1,
-    name: '신한솔',
-    age: 8,
-    gender: '남성',
-    contactNumber: '01028041057',
-    topic: '학업',
-    birthDate: '2016-02-04',
-    registrationDate: '2024-12-04',
-    registrationStatus: '신규',
-    counselorClients: [],
-    emotionMap: null,
-    createdAt: '2024-12-04T13:24:59.000+00:00',
-    updatedAt: '2024-12-04T13:24:59.000+00:00'
-  },
-  {
-    id: 2,
-    name: '김민지',
-    age: 15,
-    gender: '여성',
-    contactNumber: '01012345678',
-    topic: '진로',
-    birthDate: '2009-05-20',
-    registrationDate: '2024-12-04',
-    registrationStatus: '진행중',
-    counselorClients: [],
-    emotionMap: null,
-    createdAt: '2024-12-04T14:30:00.000+00:00',
-    updatedAt: '2024-12-04T14:30:00.000+00:00'
-  },
-  {
-    id: 3,
-    name: '박준호',
-    age: 12,
-    gender: '남성',
-    contactNumber: '01098765432',
-    topic: '가족',
-    birthDate: '2012-11-15',
-    registrationDate: '2024-12-03',
-    registrationStatus: '완료',
-    counselorClients: [],
-    emotionMap: null,
-    createdAt: '2024-12-03T09:15:00.000+00:00',
-    updatedAt: '2024-12-03T09:15:00.000+00:00'
-  }
-]
-
 function MyCounsel() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [clients, setClients] = useState<any[]>([]);
+  const [status, setStatus] = useState<string>("전체")
 
+  useEffect(() => {
+    getClients()
+        .then((res) => {
+            setClients(res.data.data)
+        })
+  }, []);
   return (
     <div className="w-full min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
@@ -132,7 +93,7 @@ function MyCounsel() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dummyClients.map((client) => (
+                {clients.map((client) => (
                   <TableRow key={client.id}>
                     <TableCell className="whitespace-nowrap">{client.id}</TableCell>
                     <TableCell className="whitespace-nowrap">

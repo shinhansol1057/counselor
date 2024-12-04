@@ -12,4 +12,18 @@ const postClient = async(registrationStatus:string, name:string, topic:string, c
     })
 }
 
-export {postClient}
+const getClients = async() => {
+    return Api.get("/api/clients/assigned-clients")
+}
+
+const postAnalysis = async(clientId:string, audioFile:Blob) => {
+    const formData = new FormData();
+    formData.append("file", audioFile);
+    return Api.post(`/api/sessions/${clientId}/analyze-recording`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        }
+    } )
+}
+
+export {postClient, getClients, postAnalysis}

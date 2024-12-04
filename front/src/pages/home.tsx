@@ -10,12 +10,13 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import {getClients, postAnalysis} from "@/api/client.ts";
 
 interface DragEvent extends React.DragEvent<HTMLDivElement> {
   dataTransfer: DataTransfer
 }
 
-const clients = [
+const clients1 = [
   { id: '1', name: '김철수' },
   { id: '2', name: '이영희' },
   { id: '3', name: '박지민' },
@@ -28,7 +29,15 @@ function Home() {
   const [progress, setProgress] = useState<number>(0)
   const [isComplete, setIsComplete] = useState<boolean>(false)
   const [isDragging, setIsDragging] = useState<boolean>(false)
-  const [selectedClient, setSelectedClient] = useState(clients[0].id)
+  const [selectedClient, setSelectedClient] = useState(clients1[0].id)
+  const [clients, setClients] = useState<any[]>([])
+
+  useEffect(() => {
+    getClients()
+        .then((res) => {
+          setClients(res.data.data)
+        })
+  }, []);
 
   useEffect(() => {
     if (isUploading) {
@@ -108,13 +117,8 @@ function Home() {
     // 내담자id랑 audioFile가져와서 post하면됨 토큰필요하면 const token = localstorage.get('token')
     // await axios.post()
     console.log(clientId, audioFile)
-
-    // 이건 await 끝날때까지그냥 계속 로딩함 실제 ai
-    return new Promise((resolve) => {
-      setTimeout(async () => {
-        resolve(true)
-      }, 13000)
-    })
+    const data = await postAnalysis(clientId, audioFile)
+    console.log(data)
   }
 
   return (
