@@ -125,6 +125,7 @@ function MyCounsel() {
                   <TableHead className="whitespace-nowrap">ID</TableHead>
                   <TableHead className="whitespace-nowrap">이름(나이)</TableHead>
                   <TableHead className="whitespace-nowrap">성별</TableHead>
+                  <TableHead className="whitespace-nowrap">토픽</TableHead>
                   <TableHead className="whitespace-nowrap">연락처</TableHead>
                   <TableHead className="whitespace-nowrap">생년월일</TableHead>
                   <TableHead className="whitespace-nowrap">등록일</TableHead>
@@ -139,6 +140,7 @@ function MyCounsel() {
                       {client.name}({client.age})
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{client.gender}</TableCell>
+                    <TableCell className="whitespace-nowrap">{client.topic}</TableCell>
                     <TableCell className="whitespace-nowrap">{client.contactNumber}</TableCell>
                     <TableCell className="whitespace-nowrap">{client.birthDate}</TableCell>
                     <TableCell className="whitespace-nowrap">{client.registrationDate}</TableCell>
