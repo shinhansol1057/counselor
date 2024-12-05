@@ -1,36 +1,39 @@
 package com.application.Controller;
 
-import com.application.Dto.AIAnalysisResult;
+import com.application.Dto.dashboard.DashboardResponseDto;
 import com.application.Dto.ResponseDto;
 import com.application.Entity.EmotionAnalysisReport;
 import com.application.Entity.Session;
 import com.application.Service.EmotionAnalysisService;
 import com.application.Service.SessionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sessions")
+@RequiredArgsConstructor
 public class SessionController {
 
     private final SessionService sessionService;
     private final EmotionAnalysisService emotionAnalysisService;
 
-    @Autowired
-    public SessionController(SessionService sessionService, EmotionAnalysisService emotionAnalysisService) {
-        this.sessionService = sessionService;
-        this.emotionAnalysisService = emotionAnalysisService;
-    }
-
     // 모든 세션 조회
     @GetMapping
     public ResponseDto<List<Session>> getAllSessions() {
         return sessionService.getAllSessions();
+    }
+
+    @GetMapping("/dashboard/{id}")
+    public ResponseDto<DashboardResponseDto> getDashboardData(@PathVariable(required = false) String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("authentication: " + authentication.getPrincipal());
+        return sessionService.getDashboardData((String) authentication.getPrincipal(), Long.parseLong(id));
     }
 
     // 특정 세션 조회
@@ -46,9 +49,10 @@ public class SessionController {
     }
 
     // 녹음 파일 업로드 및 AI 분석 요청
-    @PostMapping("/{clientId}/analyze-recording")
+    @PostMapping("/{clientId}/{minuteOfCounseling}/analyze-recording")
     public ResponseDto<String> analyzeSessionRecording(
             @PathVariable Long clientId,
+            @PathVariable Integer minuteOfCounseling,
             @RequestParam("file") MultipartFile file) {
 
         // 디버깅 정보 로그 출력
@@ -56,7 +60,7 @@ public class SessionController {
         System.out.println("File size: " + file.getSize());
         System.out.println("File content type: " + file.getContentType()+"\n\n");
 
-        return sessionService.analyzeSessionRecording(clientId, file);
+        return sessionService.analyzeSessionRecording(clientId, minuteOfCounseling, file);
     }
 
 

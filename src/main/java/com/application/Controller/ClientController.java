@@ -80,6 +80,12 @@ public class ClientController {
         return clientService.addClient(client);
     }
 
+    @PutMapping("/{clientId}")
+    public ResponseDto<Client> putClient(@RequestBody ClientRequestDto clientRequestDto,
+                                         @PathVariable Long clientId) {
+        return clientService.putClient(clientRequestDto, clientId);
+    }
+
 
 
     // 내담자 정보 수정
@@ -92,7 +98,7 @@ public class ClientController {
 
     // 내담자 삭제
     @DeleteMapping("/{id}")
-    public ResponseDto<?> deleteClient(@PathVariable Long id) {
+    public ResponseDto<String> deleteClient(@PathVariable Long id) {
         return clientService.deleteClient(id);
     }
 }

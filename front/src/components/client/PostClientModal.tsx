@@ -26,7 +26,9 @@ const PostClientModal = ({showAddDialog, setShowAddDialog}:Props) => {
 
     const handlePostClient = async () => {
         const data = await postClient(status, name, selectTopic, phoneNum, gender, formatDateToYYYYMMDD(birthDate))
-        if (data.data.status === 201) {
+        console.log(data)
+        if (data.data.statusCode === 201) {
+            alert("내담자가 등록되었습니다.")
             window.location.reload()
         }
     };

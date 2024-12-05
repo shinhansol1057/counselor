@@ -27,6 +27,10 @@ public class Session {
     @JoinColumn(name = "counselor_id")
     private Counselor counselor;
 
+    //TODO: 상담 시간 컬럼 추가했어요
+    @Column(name = "minute_of_counseling")
+    private Integer minuteOfCounseling;
+
     @Column(name = "session_date")
     private Timestamp sessionDate;
 

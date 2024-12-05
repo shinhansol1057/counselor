@@ -25,6 +25,10 @@ public class EmotionAnalysisReport {
     @Column(name = "sentence_number")
     private Integer sentenceNumber;
 
+    //TODO: DB 컬럼 추가했어요
+    @Column(name = "speaker_label")
+    private Integer speakerLabel;
+
     @Column(name = "sentence_text", nullable = false)
     private String sentenceText;
 

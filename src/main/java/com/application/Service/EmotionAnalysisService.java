@@ -66,12 +66,13 @@ public class EmotionAnalysisService {
             convertedFile = convertMultipartFileToFile(file);
 
             // Flask 서버로 분석 요청
-            //TODO: AI 서버 미구동으로 인해 주석 처리 -> 추후 주석 해제 필요
-//            List<Map<String, Object>> analysisResults = flaskCommunicationService.analyzeRecording(convertedFile);
+            List<Map<String, Object>> analysisResults = flaskCommunicationService.analyzeRecording(convertedFile);
 
+            // TODO: MOCK 데이터 생성로직으로 AI 연결 실패시 바로위에 'Flask 서버로 분석 요청' 로직 대신 사용하시면 됩니다.
+//            List<Map<String, Object>> mockData = generateSampleData1();
 
             // 분석 결과를 데이터베이스에 저장
-            saveAnalysisResults(session.getId(), generateSampleData());
+            saveAnalysisResults(session.getId(), analysisResults);
 
             // 성공 메시지 반환
             return ResponseDto.setSuccessData("분석 완료", "분석 결과가 성공적으로 저장되었습니다.", HttpStatus.OK);
@@ -122,6 +123,7 @@ public class EmotionAnalysisService {
             String sentenceText = (String) result.get("text");
             String emotion = (String) result.get("emotion"); // 감정 (null 가능)
             String sentenceId = (String) result.get("id");   // "1"과 같은 String 형태
+            String speakerLabel = (String) result.get("speaker_label");
             // 키워드 데이터를 JSON 문자열로 변환
             ObjectMapper objectMapper = new ObjectMapper();
             String keywords = null;
@@ -176,7 +178,7 @@ public class EmotionAnalysisService {
         return emotionMapRepository.findByClient_Id(clientId);
     }
 
-    public static List<Map<String, Object>> generateSampleData() {
+    public static List<Map<String, Object>> generateSampleData1() {
         List<Map<String, Object>> data = new ArrayList<>();
 
         // 데이터 1
@@ -220,7 +222,7 @@ public class EmotionAnalysisService {
         item5.put("id", "5");
         item5.put("speaker_label", "1");
         item5.put("text", "맞아요. 제 일을 좀 더 효율적으로 처리하려면 어떻게 해야 할지 고민이 돼요. 일을 나누어서 처리하거나, 미리 준비를 좀 더 철저히 해서 스트레스를 줄여야겠다고 생각은 했지만, 아직 실천은 못 해본 것 같아요.");
-        item5.put("emotion", "고민");
+        item5.put("emotion", "슬픔");
         item5.put("keywords", Arrays.asList("효율성", "스트레스", "고민"));
         data.add(item5);
 
@@ -238,7 +240,7 @@ public class EmotionAnalysisService {
         item7.put("id", "7");
         item7.put("speaker_label", "1");
         item7.put("text", "그런 방법도 좋을 것 같아요. 사실 요즘에는 취미도 없고, 집에 오면 너무 피곤해서 아무것도 하고 싶지 않아서 계속 집에만 있어요. 그럴 바에야 그냥 잠이나 자는 게 나을 것 같아서 항상 그렇게 되네요.");
-        item7.put("emotion", "우울");
+        item7.put("emotion", "슬픔");
         item7.put("keywords", Arrays.asList("취미", "피곤", "우울"));
         data.add(item7);
 
@@ -256,7 +258,7 @@ public class EmotionAnalysisService {
         item9.put("id", "9");
         item9.put("speaker_label", "1");
         item9.put("text", "운동은 정말 필요한 것 같아요. 요즘에는 시간이 없어서 운동을 못 하고 있는데, 그래도 조금씩 시간을 내서 운동을 해야겠다 싶어요. 일단 10분이라도 시작해보는 게 중요할 것 같아요.");
-        item9.put("emotion", "결심");
+        item9.put("emotion", "행복");
         item9.put("keywords", Arrays.asList("운동", "결심", "시간"));
         data.add(item9);
 
@@ -265,8 +267,104 @@ public class EmotionAnalysisService {
         item10.put("id", "10");
         item10.put("speaker_label", "0");
         item10.put("text", "맞아요. 10분이라도 운동을 시작하는 게 중요한 것 같아요. 시간을 내기 어려운 상황에서도 조금씩이라도 실천하면, 점차 몸과 마음에 좋은 영향을 미칠 거예요.");
-        item10.put("emotion", "긍정");
+        item10.put("emotion", "중립");
         item10.put("keywords", Arrays.asList("운동", "실천", "긍정"));
+        data.add(item10);
+
+        return data;
+    }
+
+    public static List<Map<String, Object>> generateSampleData2() {
+        List<Map<String, Object>> data = new ArrayList<>();
+
+        // 데이터 1
+        Map<String, Object> item1 = new HashMap<>();
+        item1.put("id", "1");
+        item1.put("speaker_label", "1");
+        item1.put("text", "최근에 가족과의 관계가 좀 힘들어져서 스트레스가 쌓이고 있어요. 서로 의견이 맞지 않아서 자주 다투게 되고, 그로 인해 기분이 많이 가라앉고 있습니다.");
+        item1.put("emotion", "슬픔");
+        item1.put("keywords", Arrays.asList("가족", "스트레스", "다툼"));
+        data.add(item1);
+
+        // 데이터 2
+        Map<String, Object> item2 = new HashMap<>();
+        item2.put("id", "2");
+        item2.put("speaker_label", "0");
+        item2.put("text", "그렇다면 어떻게 하면 그 관계를 회복할 수 있을까요? 서로의 입장을 좀 더 이해할 필요가 있을 것 같아요.");
+        item2.put("emotion", null);
+        item2.put("keywords", null);
+        data.add(item2);
+
+        // 데이터 3
+        Map<String, Object> item3 = new HashMap<>();
+        item3.put("id", "3");
+        item3.put("speaker_label", "1");
+        item3.put("text", "그럴 때마다 저도 많이 걱정돼요. 마음이 너무 무겁고, 어떻게 해야 할지 모르겠어요. 이 상황에서 벗어나고 싶은데, 계속 마음이 불안하고 짜증이 나요.");
+        item3.put("emotion", "불안");
+        item3.put("keywords", Arrays.asList("걱정", "불안", "갈등"));
+        data.add(item3);
+
+        // 데이터 4
+        Map<String, Object> item4 = new HashMap<>();
+        item4.put("id", "4");
+        item4.put("speaker_label", "0");
+        item4.put("text", "상황을 조금씩 개선해 나가는 방법을 찾아야 할 것 같아요. 작은 대화부터 시작해서 서로를 이해하려는 노력이 필요할 것 같아요.");
+        item4.put("emotion", null);
+        item4.put("keywords", null);
+        data.add(item4);
+
+        // 데이터 5
+        Map<String, Object> item5 = new HashMap<>();
+        item5.put("id", "5");
+        item5.put("speaker_label", "1");
+        item5.put("text", "그렇긴 하지만 마음속에서는 계속 두려움이 커져가고 있어요. 내가 제대로 대처하고 있는지, 이 관계가 계속 지속될 수 있을지 걱정돼요.");
+        item5.put("emotion", "불안");
+        item5.put("keywords", Arrays.asList("두려움", "불안", "관계"));
+        data.add(item5);
+
+        // 데이터 6
+        Map<String, Object> item6 = new HashMap<>();
+        item6.put("id", "6");
+        item6.put("speaker_label", "0");
+        item6.put("text", "그러면 그 감정을 어떻게 다루면 좋을까요? 때로는 감정을 솔직하게 표현하는 것도 방법이 될 수 있어요.");
+        item6.put("emotion", null);
+        item6.put("keywords", null);
+        data.add(item6);
+
+        // 데이터 7
+        Map<String, Object> item7 = new HashMap<>();
+        item7.put("id", "7");
+        item7.put("speaker_label", "1");
+        item7.put("text", "그렇게 하려고 했는데, 말을 꺼내는 순간 그 순간이 너무 당황스러웠어요. 어떻게 시작해야 할지 몰랐고, 결국 말문이 막혔어요.");
+        item7.put("emotion", "당황");
+        item7.put("keywords", Arrays.asList("당황", "말문", "어색"));
+        data.add(item7);
+
+        // 데이터 8
+        Map<String, Object> item8 = new HashMap<>();
+        item8.put("id", "8");
+        item8.put("speaker_label", "0");
+        item8.put("text", "그럴 때는 잠시 숨을 고르고, 마음을 가라앉히는 시간이 필요할 것 같아요. 좀 더 침착하게 대화를 이어나가면 좋겠죠.");
+        item8.put("emotion", null);
+        item8.put("keywords", null);
+        data.add(item8);
+
+        // 데이터 9
+        Map<String, Object> item9 = new HashMap<>();
+        item9.put("id", "9");
+        item9.put("speaker_label", "1");
+        item9.put("text", "맞아요. 숨을 고르고 나면 마음이 한결 가벼워져요. 다시 대화를 시작해보면 훨씬 효과적일 것 같아요. 그래도 여전히 조금씩 불안한 감정은 남아있지만요.");
+        item9.put("emotion", "불안");
+        item9.put("keywords", Arrays.asList("숨", "침착", "불안"));
+        data.add(item9);
+
+        // 데이터 10
+        Map<String, Object> item10 = new HashMap<>();
+        item10.put("id", "10");
+        item10.put("speaker_label", "0");
+        item10.put("text", "그렇다면 조금씩 시간을 두고, 점차적으로 상황을 풀어가며, 서로를 배려하는 태도가 필요할 것 같아요.");
+        item10.put("emotion", "행복");
+        item10.put("keywords", Arrays.asList("배려", "서로", "관계"));
         data.add(item10);
 
         return data;

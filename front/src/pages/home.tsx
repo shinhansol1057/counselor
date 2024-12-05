@@ -11,6 +11,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import {getClients, postAnalysis} from "@/api/client.ts";
+import {Input} from "@/components/ui/input.tsx";
 
 interface DragEvent extends React.DragEvent<HTMLDivElement> {
   dataTransfer: DataTransfer
@@ -31,6 +32,7 @@ function Home() {
   const [isDragging, setIsDragging] = useState<boolean>(false)
   const [selectedClient, setSelectedClient] = useState(clients1[0].id)
   const [clients, setClients] = useState<any[]>([])
+  const [minuteOfCounseling, setMinuteOfCounseling] = useState<string>("")
 
   useEffect(() => {
     getClients()
@@ -88,7 +90,7 @@ function Home() {
       setIsUploading(true)
       const audioFile: Blob = new Blob([file], { type: file.type })
       try {
-        await submitAudioFile(selectedClient, audioFile)
+        await submitAudioFile(selectedClient,minuteOfCounseling, audioFile)
         setProgress(100)
         setIsComplete(true)
       } catch (error) {
@@ -113,11 +115,8 @@ function Home() {
     setIsComplete(false)
   }
 
-  const submitAudioFile = async (clientId: string, audioFile: Blob) => {
-    // 내담자id랑 audioFile가져와서 post하면됨 토큰필요하면 const token = localstorage.get('token')
-    // await axios.post()
-    console.log(clientId, audioFile)
-    const data = await postAnalysis(clientId, audioFile)
+  const submitAudioFile = async (clientId: string,minuteOfCounseling: string, audioFile: Blob) => {
+    const data = await postAnalysis(clientId, minuteOfCounseling, audioFile)
     console.log(data)
   }
 
@@ -144,10 +143,14 @@ function Home() {
                 ))}
               </SelectContent>
             </Select>
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-4">상담 시간</h3>
+              <Input type={"number"} value={minuteOfCounseling} onChange={(e) => setMinuteOfCounseling(e.target.value) }/>
+            </div>
           </div>
 
           {!isComplete && !isUploading && (
-            <div
+              <div
               className={`bg-gray-50 rounded-lg p-12 text-center border-2 border-dashed
                 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
                 ${isDragging ? 'border-blue-500' : 'border-gray-300'}`}

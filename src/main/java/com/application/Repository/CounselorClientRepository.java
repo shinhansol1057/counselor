@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface CounselorClientRepository extends JpaRepository<CounselorClient, Long> {
 
     List<CounselorClient> findByCounselor(Counselor counselor);
+    Optional<CounselorClient> findByClient(Client client);
 
     Optional<CounselorClient> findByCounselorAndClient(Counselor counselor, Client client);
 }

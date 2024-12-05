@@ -5,15 +5,36 @@ import {Input} from "@/components/ui/input.tsx";
 import {DatePicker} from "@/components/ui/date-picker.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {getTopics} from "@/api/topic.ts";
+import {getClient, updateClient} from "@/api/client.ts";
+import {formatDateToYYYYMMDD} from "@/utill/date.ts";
 
 type Props = {
     showEditDialog: boolean;
     setShowEditDialog: (show: boolean) => void;
-    clientId: number;
+    clientId: string;
 }
-const UpdateClientModal = ({showEditDialog, setShowEditDialog}:Props) => {
-    const [birthDate, setBirthDate] = useState<Date>()
+const UpdateClientModal = ({showEditDialog, setShowEditDialog, clientId}:Props) => {
+    const [status, setStatus] = useState<string>("")
+    const [name, setName] = useState<string>("")
+    const [selectTopic, setSelectTopic] = useState<string>("")
+    const [phoneNum, setPhoneNum] = useState<string>("")
+    const [gender, setGender] = useState<string>("")
+    const [birthDate, setBirthDate] = useState<Date>(new Date())
+    const [clientData, setClientData] = useState<any>(null)
+
+
     const [topics, setTopics] = useState<string[]>([])
+
+
+    const handlePostClient = async () => {
+        const data = await updateClient(clientId, status, name, selectTopic, phoneNum, gender, formatDateToYYYYMMDD(birthDate))
+        console.log(data)
+        if (data.data.message === "내담자 정보 및 주제 업데이트 성공") {
+            alert("내담자 정보가 수정되었습니다.")
+            window.location.reload()
+        }
+    };
+
 
     useEffect(() => {
         getTopics()
@@ -21,71 +42,85 @@ const UpdateClientModal = ({showEditDialog, setShowEditDialog}:Props) => {
                 setTopics(res.data.data)
             })
     }, []);
+
+    useEffect(() => {
+        if (clientId && showEditDialog) {
+            getClient(clientId)
+                .then((res) => {
+                    const data = res.data.data
+                    setClientData(data)
+                    setStatus(data.registrationStatus || "")
+                    setName(data.name || "")
+                    setSelectTopic(data.topic || "")
+                    setPhoneNum(data.contactNumber || "")
+                    setGender(data.gender || "")
+                    console.log(data.birthDate)
+                })
+        }
+    }, [clientId, showEditDialog]);
+    console.log(clientData)
     return (
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-            {/*<DialogContent>*/}
-            {/*    <DialogHeader>*/}
-            {/*        <DialogTitle className="text-lg font-medium">내담자 정보 수정</DialogTitle>*/}
-            {/*    </DialogHeader>*/}
-            {/*    <div className="space-y-3 py-4">*/}
-            {/*        <Select defaultValue={selectedClient?.status}>*/}
-            {/*            <SelectTrigger>*/}
-            {/*                <SelectValue placeholder="상태 선택" />*/}
-            {/*            </SelectTrigger>*/}
-            {/*            <SelectContent>*/}
-            {/*                <SelectItem value="신규">신규</SelectItem>*/}
-            {/*                <SelectItem value="진행">진행</SelectItem>*/}
-            {/*                <SelectItem value="종결">종결</SelectItem>*/}
-            {/*            </SelectContent>*/}
-            {/*        </Select>*/}
-            {/*        <Input placeholder="이름을 입력하세요" defaultValue={selectedClient?.name} />*/}
-            {/*        <Select defaultValue={selectedClient?.counselType}>*/}
-            {/*            <SelectTrigger>*/}
-            {/*                <SelectValue placeholder="상담주제 선택" />*/}
-            {/*            </SelectTrigger>*/}
-            {/*            <SelectContent>*/}
-            {/*                <SelectItem value="가족상담">가족상담</SelectItem>*/}
-            {/*                <SelectItem value="진로상담">진로상담</SelectItem>*/}
-            {/*                <SelectItem value="학업상담">학업상담</SelectItem>*/}
-            {/*            </SelectContent>*/}
-            {/*        </Select>*/}
-            {/*        <Select defaultValue={selectedClient?.counselor}>*/}
-            {/*            <SelectTrigger>*/}
-            {/*                <SelectValue placeholder="면담자 선택" />*/}
-            {/*            </SelectTrigger>*/}
-            {/*            <SelectContent>*/}
-            {/*                <SelectItem value="김상담">김상담</SelectItem>*/}
-            {/*                <SelectItem value="이상담">이상담</SelectItem>*/}
-            {/*            </SelectContent>*/}
-            {/*        </Select>*/}
-            {/*        <Select defaultValue={selectedClient?.gender}>*/}
-            {/*            <SelectTrigger>*/}
-            {/*                <SelectValue placeholder="성별 선택" />*/}
-            {/*            </SelectTrigger>*/}
-            {/*            <SelectContent>*/}
-            {/*                <SelectItem value="male">남성</SelectItem>*/}
-            {/*                <SelectItem value="female">여성</SelectItem>*/}
-            {/*            </SelectContent>*/}
-            {/*        </Select>*/}
-            {/*        <DatePicker*/}
-            {/*            selected={selectedClient?.birthDate}*/}
-            {/*            onSelect={setBirthDate}*/}
-            {/*            placeholder="생년월일 선택"*/}
-            {/*        />*/}
-            {/*        <Input*/}
-            {/*            type="number"*/}
-            {/*            placeholder="내담 회차"*/}
-            {/*            defaultValue={selectedClient?.count}*/}
-            {/*            min={1}*/}
-            {/*            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"*/}
-            {/*        />*/}
-            {/*    </div>*/}
-            {/*    <DialogFooter>*/}
-            {/*        <Button className="w-full" size="lg">*/}
-            {/*            수정*/}
-            {/*        </Button>*/}
-            {/*    </DialogFooter>*/}
-            {/*</DialogContent>*/}
+            {clientData && (
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-medium">내담자 등록</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 py-4">
+                        <Select value={status} onValueChange={(value) => setStatus(value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="상태 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="신규">신규</SelectItem>
+                                <SelectItem value="진행">진행</SelectItem>
+                                <SelectItem value="종결">종결</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Input placeholder="이름을 입력하세요" value={name} onChange={(e) => setName(e.target.value)}/>
+                        <Select value={selectTopic} onValueChange={(value) => setSelectTopic(value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="상담주제 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {topics.map((topic) => (
+                                    <SelectItem value={topic} key={topic}>{topic}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Input
+                            type="text"
+                            placeholder="연락처"
+                            min={11}
+                            max={11}
+                            value={phoneNum}
+                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            onChange={(e) => setPhoneNum(e.target.value)}
+                        />
+                        <Select value={gender} onValueChange={(value) => setGender(value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="성별 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="남성">남성</SelectItem>
+                                <SelectItem value="여성">여성</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <DatePicker
+                            selected={birthDate}
+                            // @ts-ignore
+                            onSelect={setBirthDate}
+                            placeholder="생년월일 선택"
+                        />
+
+                    </div>
+                    <DialogFooter>
+                        <Button className="w-full" size="lg" onClick={() => handlePostClient()}>
+                            등록
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            )}
         </Dialog>
     );
 };

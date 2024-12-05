@@ -1,4 +1,3 @@
-import { AnalysisData } from '@/pages/dashboard'
 import {
   LineChart,
   Line,
@@ -8,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
+import {AnalysisData} from "@/type/clientType.ts";
 
 type Props = {
   analysis: AnalysisData[]
@@ -46,7 +46,7 @@ export function DetailedView({ analysis }: Props) {
     const emotions: string[] = []
 
     data.forEach((item) => {
-      if (item.speaker_label === '1') {
+      if (item.speakerLabel === 1) {
         if (item.keywords) keywords.push(...item.keywords)
         if (item.emotion) emotions.push(item.emotion)
       }
@@ -99,7 +99,7 @@ export function DetailedView({ analysis }: Props) {
         {analysis.map((item, index) => (
           <div key={index} className="p-2 bg-white rounded">
             <p>
-              <strong>{item.speaker_label === '1' ? '내담자' : '상담사'}:</strong> {item.text}
+              <strong>사람({item.speakerLabel})</strong> {item.text}
             </p>
           </div>
         ))}

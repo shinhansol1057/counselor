@@ -2,6 +2,7 @@ package com.application.Dto.dashboard;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,4 +16,5 @@ public class DashboardResponseDto {
     private String totalCounselingTime;
     private String mostFrequencyEmotion;
     private Map<String, Integer> counselingCountByEmotion;
+    private List<CounselingDetailDto> counselingDetails;
 }

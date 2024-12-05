@@ -1,15 +1,11 @@
 package com.application.Service;
 
+import com.application.Dto.ClientRequestDto;
 import com.application.Dto.ClientResponseDto;
 import com.application.Dto.ResponseDto;
-import com.application.Entity.Client;
-import com.application.Entity.CounselingTopic;
-import com.application.Entity.Counselor;
-import com.application.Entity.CounselorClient;
-import com.application.Repository.ClientRepository;
-import com.application.Repository.CounselingTopicRepository;
-import com.application.Repository.CounselorClientRepository;
-import com.application.Repository.CounselorRepository;
+import com.application.Entity.*;
+import com.application.Repository.*;
+import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,14 +27,18 @@ public class ClientService {
     private final CounselorRepository counselorRepository;
     private final CounselorClientRepository counselorClientRepository;
     private final CounselingTopicRepository counselingTopicRepository;
+    private final SessionRepository sessionRepository;
+    private final EmotionAnalysisReportRepository emotionAnalysisReportRepository;
 
     @Autowired
     public ClientService(ClientRepository clientRepository,
-                         CounselorRepository counselorRepository, CounselorClientRepository counselorClientRepository, CounselingTopicRepository counselingTopicRepository) {
+                         CounselorRepository counselorRepository, CounselorClientRepository counselorClientRepository, CounselingTopicRepository counselingTopicRepository, SessionRepository sessionRepository, EmotionAnalysisReportRepository emotionAnalysisReportRepository) {
         this.clientRepository = clientRepository;
         this.counselorRepository = counselorRepository;
         this.counselorClientRepository = counselorClientRepository;
         this.counselingTopicRepository = counselingTopicRepository;
+        this.sessionRepository = sessionRepository;
+        this.emotionAnalysisReportRepository = emotionAnalysisReportRepository;
     }
 
 
@@ -102,13 +102,20 @@ public class ClientService {
     }
 
 
-    public ResponseDto<?> deleteClient(Long id) {
-        if (clientRepository.existsById(id)) {
-            clientRepository.deleteById(id);
-            return ResponseDto.setSuccess("내담자 삭제 성공", HttpStatus.OK);
-        } else {
-            return ResponseDto.setFailed("내담자 ID가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
-        }
+    @Transactional
+    public ResponseDto<String> deleteClient(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Client not found with ID: " + id));
+        CounselorClient counselorClient = counselorClientRepository.findByClient(client)
+                .orElseThrow(() -> new NoSuchElementException("CounselorClient not found with client ID: " + id));
+        List<Session> sessions = sessionRepository.findByClientId(client.getId());
+        sessions.forEach(session -> {
+            emotionAnalysisReportRepository.deleteAllBySessionId(session.getId());
+        });
+        sessionRepository.deleteAllByClientId(client.getId());
+        counselorClientRepository.delete(counselorClient);
+        clientRepository.deleteById(client.getId());
+        return ResponseDto.setSuccess("내담자 삭제 성공", HttpStatus.OK);
     }
 
     public ResponseDto<List<Client>> getClientsByLoggedInCounselor() {
@@ -156,5 +163,20 @@ public class ClientService {
                 .map(CounselingTopic::getTopicName)
                 .collect(Collectors.toList());
         return ResponseDto.setSuccessData("상담 주제 목록 조회 성공", topics, HttpStatus.OK);
+    }
+
+    public ResponseDto<Client> putClient(ClientRequestDto clientRequestDto, Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new NoSuchElementException("Client not found with ID: " + clientId));
+        client.setName(clientRequestDto.getName());
+        client.setContactNumber(clientRequestDto.getContactNumber());
+        client.setGender(clientRequestDto.getGender());
+        client.setBirthDate(clientRequestDto.getBirth());
+        client.setAge(client.calculateAge(clientRequestDto.getBirth()));
+        client.setTopic(clientRequestDto.getTopic());
+        client.setRegistrationStatus(clientRequestDto.getRegistrationStatus());
+
+        clientRepository.save(client);
+        return ResponseDto.setSuccessData("내담자 정보 수정 성공", client, HttpStatus.OK);
     }
 }
