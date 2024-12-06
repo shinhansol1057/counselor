@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf/renderer": "^4.1.5",
+    "html2canvas": "^1.4.1",
+    "react-modal": "^3.16.1",
+    "react-pdf": "^9.1.1"
+  }
+}
