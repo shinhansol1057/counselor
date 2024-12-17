@@ -44,6 +44,16 @@ const emotionLabels = {
   6: '혐오'
 };
 
+const emotionReverseLabels = {
+  '행복' : 0,
+  '중립' : 1,
+  '불안' : 2,
+  '당황' : 3,
+  '슬픔' : 4,
+  '분노' : 5,
+  '혐오' : 6
+};
+
 // PDF 스타일 정의
 const styles = StyleSheet.create({
   page: {
@@ -241,14 +251,12 @@ export function DetailedView({ analysis, order, onClose }: Props) {
 
 
 
-  const chartData = analysis
+  const chartData1 = analysis
       .filter((item) => item.speakerLabel === 1) // speakerLabel이 1인 경우만 필터링
-      .map((item, index) => ({
-        name: item.text, // 실제 대화 텍스트
-        value: emotions[index] // 숫자 값 유지
-      }));
-
-
+  const chartData = chartData1.map((item, index) => ({
+    name: item.text, // 실제 대화 텍스트
+    value:  emotionReverseLabels[item.emotion ?? '중립']// 숫자 값 유지
+  }));
 
 
 
